@@ -9,17 +9,23 @@ function readFile(path, year) {
 	});
 
 	rd.on('line', function(line) {
-	    addLine(line, year);
+		if(year < currentYear){
+			addLine(line, year);
+		} else {
+			addProjection(line);
+		}
 	});
 
 	rd.on('close', function() {
 		filesDone[year] = true;
-		if(filesDone[currentYear-1] && filesDone[currentYear-2] && filesDone[currentYear-3]){
+		if(year === currentYear){
+			writeFiles();
+		}else if(filesDone[currentYear-1] && filesDone[currentYear-2] && filesDone[currentYear-3]) {
 			for(var player in playerData) {
 				playerData[player] = getAverages(playerData[player]);
 			}
 			rankPlayers('VBDAverage', 'PointsAverage');
-			writeFiles();
+			getProjections();
 		}
 	});
 }
@@ -144,6 +150,10 @@ readFile('./PlayerStats' + (currentYear - 1) + '.csv', currentYear - 1);
 readFile('./PlayerStats' + (currentYear - 2) + '.csv', currentYear - 2);
 readFile('./PlayerStats' + (currentYear - 3) + '.csv', currentYear - 3);
 
+function getProjections() {
+	readFile('./Yahoo_Projections' + (currentYear) + '.csv', currentYear);
+}
+
 
 function rankPlayers(rankKey, secondaryRankKey) {
 	var rankedList = [];
@@ -177,4 +187,45 @@ function rankPlayers(rankKey, secondaryRankKey) {
 		playerData[player.id].rank = index+1;
 	});
 
+}
+
+var nameList = [];
+function addProjection(line) {
+	var split = line.split(',');
+	var nameSplit = split[0].split(' ');
+	var name = nameSplit[0] + ' ' + nameSplit[1];
+	var team = nameSplit[2];
+
+	// Check to see if any names are the same
+	// nameList.forEach(function(playerName) {
+	// 	if(name === playerName) {
+	// 		console.log(name);
+	// 	}
+	// });
+	// nameList.push(name);
+	var newName = true;
+	for(var player in playerData){
+		if(name === playerData[player].name) {
+			playerData[player][currentYear] = {
+				points: split[6],
+				team: team
+			}
+			newName = false;
+		} 
+	}
+	if(newName) {
+		var id = getPlayerId(name, 0);
+	}
+}
+
+function getPlayerId(name, number) {
+	var firstName = name.split(' ')[0];
+	var lastName = name.split(' ')[1];
+	var newId = lastName.slice(0,4) + firstName.slice(0,2) + '0' + number;
+	if(playerData[newId] !== undefined){
+		var newNumber = number + 1;
+		getPlayerId(name, newNumber);
+	} else {
+		return newId;
+	}
 }
