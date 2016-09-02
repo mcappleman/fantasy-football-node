@@ -19,26 +19,27 @@ function readFile(path, year) {
 	rd.on('close', function() {
 		filesDone[year] = true;
 		if(year === currentYear){
+			getVBDValues();
+			rankPlayers('projectedVBDAverage', 'projectedPointsAverage');
 			writeFiles();
 		}else if(filesDone[currentYear-1] && filesDone[currentYear-2] && filesDone[currentYear-3]) {
 			for(var player in playerData) {
 				playerData[player] = getAverages(playerData[player]);
 			}
-			rankPlayers('VBDAverage', 'PointsAverage');
 			getProjections();
 		}
 	});
 }
 
 function writeFiles() {
-	var header_line = 'Taken,Rank,Name,Position,PointsAverage,VBDAverage,BestPointsYear,BestVBDYear,' + 
-					  'Points_2015,VBD_2015,Team_2015,Points_2014,VBD_2014,Team_2014,Points_2013,VBD_2013,Team_2013 \n';
+	var header_line = 'Taken,Rank,Name,Position,ProjectPointsAverage,ProjectedVBDAverage,PointsAverage,VBDAverage,BestPointsYear,BestVBDYear,' + 
+					  'Points_2016,VBD_2016,Team_2016,Points_2015,VBD_2015,Team_2015,Points_2014,VBD_2014,Team_2014,Points_2013,VBD_2013,Team_2013 \n';
 	fs.writeFileSync('AllPlayers.csv', header_line, 'utf8', ErrorCallback);
 	for(var player in playerData) {
 		var writableLine = getCSVLine(playerData[player]) + '\n';
 		fs.appendFileSync('AllPlayers.csv', writableLine, 'utf8');
 	}
-	console.log(playerData['BrowAn04'], playerData['FreeDe00']);
+	console.log(playerData['BrowAn04'], playerData['FreeDe00'], playerData['ElliEz00']);
 }
 
 function ErrorCallback(err) {
@@ -46,9 +47,9 @@ function ErrorCallback(err) {
 }
 
 function getCSVLine(player) {
-	var str = ',' + player.rank + ',' + player.name + ',' + player.position + ',' + player.fantasyAverage + ',' + player.VBDAverage + ',';
-	if(player.bestFantasyYear >= furthestYear) {
-		str += player.bestFantasyYear + ' ' + player[player.bestFantasyYear]['team'] + ',';
+	var str = ',' + player.rank + ',' + player.name + ',' + player.position + ',' + player.projectedPointsAverage + ',' +  player.projectedVBDAverage + ',' +  player.pointsAverage + ',' + player.VBDAverage + ',';
+	if(player.bestPointsYear >= furthestYear) {
+		str += player.bestPointsYear + ' ' + player[player.bestPointsYear]['team'] + ',';
 	} else {
 		str += ',';
 	}
@@ -57,6 +58,7 @@ function getCSVLine(player) {
 	} else {
 		str += ',';
 	}
+	str += getYearStats(currentYear, player);
 	str += getYearStats(currentYear-1, player);
 	str += getYearStats(currentYear-2, player);
 	str += getYearStats(currentYear-3, player);
@@ -102,9 +104,9 @@ function getLineObject(line) {
 }
 
 function getAverages(player) {
-	player.fantasyAverage = getAverage(player, 'points');
+	player.pointsAverage = getAverage(player, 'points');
 	player.VBDAverage = getAverage(player, 'VBD');
-	player.bestFantasyYear = getBestYear(player, 'points');
+	player.bestPointsYear = getBestYear(player, 'points');
 	player.bestVBDYear = getBestYear(player, 'VBD');
 	return player;
 }
@@ -114,6 +116,21 @@ function getAverage(player, type) {
 	var average = 0;
 	var i = 0;
 	for(var year = currentYear-1; year >= furthestYear; year--){
+		if(player[year]){
+			if(player[year][type]){
+				average += ratios[i] * player[year][type];
+			}
+		}
+		i++;
+	}
+	return average.toFixed(3);
+}
+
+function getProjectedAverage(player, type) {
+	var ratios = [.38, .38, .16, .08];
+	var average = 0;
+	var i = 0;
+	for(var year = currentYear; year >= furthestYear; year--){
 		if(player[year]){
 			if(player[year][type]){
 				average += ratios[i] * player[year][type];
@@ -167,9 +184,6 @@ function rankPlayers(rankKey, secondaryRankKey) {
 			var currentPlayer = rankedList[i];
 			var comparedPlayer = rankedList[j];
 			if(Number(rankedList[j][rankKey]) > Number(rankedList[i][rankKey])) {
-				if(rankedList[i].id === 'GronRo00'){
-					console.log(Number(rankedList[j][rankKey]));
-				}
 				var temp = rankedList[i];
 				rankedList[i] = rankedList[j];
 				rankedList[j] = temp;
@@ -194,7 +208,7 @@ function addProjection(line) {
 	var split = line.split(',');
 	var nameSplit = split[0].split(' ');
 	var name = nameSplit[0] + ' ' + nameSplit[1];
-	var team = nameSplit[2];
+	var team = nameSplit[nameSplit.length-1];
 
 	// Check to see if any names are the same
 	// nameList.forEach(function(playerName) {
@@ -205,7 +219,7 @@ function addProjection(line) {
 	// nameList.push(name);
 	var newName = true;
 	for(var player in playerData){
-		if(name === playerData[player].name) {
+		if(name === playerData[player].name && split[1] === playerData[player].position) {
 			playerData[player][currentYear] = {
 				points: split[6],
 				team: team
@@ -215,6 +229,15 @@ function addProjection(line) {
 	}
 	if(newName) {
 		var id = getPlayerId(name, 0);
+		playerData[id] = {
+			id: id,
+			name: name,
+			position: split[1]
+		}
+		playerData[id][currentYear] = {
+			points: split[6],
+			team: team
+		}
 	}
 }
 
@@ -228,4 +251,66 @@ function getPlayerId(name, number) {
 	} else {
 		return newId;
 	}
+}
+
+var baseQBId, baseRBId, baseWRId, baseTEId;
+
+function getVBDValues() {
+	baseQBId = getBaseId(12, 'QB');
+	baseRBId = getBaseId(24, 'RB');
+	baseWRId = getBaseId(30, 'WR');
+	baseTEId = getBaseId(12, 'TE');
+
+	for(var player in playerData) {
+		if(playerData[player][currentYear] !== undefined) {
+			playerData[player][currentYear].VBD = getVBD(playerData[player]).toFixed(3);
+		}
+		playerData[player].projectedVBDAverage = getProjectedAverage(playerData[player], 'VBD');
+		playerData[player].projectedPointsAverage = getProjectedAverage(playerData[player], 'points');
+	}
+}
+
+function getVBD(player) {
+	var basePlayer;
+	if(player.position === 'QB') {
+		basePlayer = baseQBId;
+	} else if(player.position === 'RB') {
+		basePlayer = baseRBId;
+	} else if(player.position === 'WR') {
+		basePlayer = baseWRId;
+	} else if(player.position === 'TE') {
+		basePlayer = baseTEId;
+	}
+	var value = player[currentYear].points - playerData[basePlayer][currentYear].points;
+	if(value <= 0){
+		value = 0;
+	}
+	return value;
+}
+
+function getBaseId(rank, pos) {
+	var rankedList = [];
+
+	// Populate the list with position players
+	for(var player in playerData){
+		if(playerData[player].position === pos && playerData[player][currentYear] !== undefined) {
+			rankedList.push(playerData[player]);
+		}
+	}
+
+	// Sort players based off of projected points
+	for(var i = 0; i < rankedList.length; i++) {
+		for(var j = i+1; j < rankedList.length; j++) {
+
+			if(Number(rankedList[j][currentYear]['points']) > Number(rankedList[i][currentYear]['points'])) {
+				// console.log(rankedList[i], rankedList[j]);
+				var temp = rankedList[i];
+				rankedList[i] = rankedList[j];
+				rankedList[j] = temp;
+			}
+
+		}
+	}
+
+	return rankedList[rank-1].id;
 }
