@@ -1,0 +1,30 @@
+{
+  "name": "fantasy-football-node",
+  "version": "1.0.0",
+  "description": "\"Scripts for gathering fantasy football data\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "mocha --timeout 240000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcappleman/fantasy-football-node.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mcappleman/fantasy-football-node/issues"
+  },
+  "homepage": "https://github.com/mcappleman/fantasy-football-node#readme",
+  "dependencies": {
+    "cheerio": "latest",
+    "moment": "latest",
+    "request": "latest"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^2.0.1",
+    "mocha": "^2.4.5"
+  }
+}
