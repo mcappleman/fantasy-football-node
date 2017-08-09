@@ -3,5 +3,5 @@ Basic scripts to pull together previous season data from profootballreference an
 
 ## Commands
 * npm install
-* COMMAND=scrape-espn npm start
-* COMMAND=write-csv npm start
+* npm run compile-old-stats
+* npm run gather-future-stats

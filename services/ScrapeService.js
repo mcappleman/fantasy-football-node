@@ -5,7 +5,8 @@ var cheerio = require('cheerio');
 var RequestService = require('./RequestService');
 
 const ROWS_PER_PAGE = 40;
-const BASE_URL = 'http://games.espn.com/ffl/tools/projections?leagueId=282421&startIndex='
+const BASE_URL = 'http://games.espn.com/ffl/tools/projections?leagueId=282421&startIndex=';
+const POSITIONS = ['QB', 'RB', 'WR', 'TE', 'K', 'D/ST'];
 
 var skip = 0;
 
@@ -76,7 +77,13 @@ function scrapeProjections(html) {
 
 			var projection = {};
 
-			projection.playerName = $(playerRows[key]).find('td.playertablePlayerName a.flexpop').text();
+			projection.name = $(playerRows[key]).find('td.playertablePlayerName a.flexpop').text();
+			var positionTeamSplit = $(playerRows[key]).find('td.playertablePlayerName').text().split(' ');
+			var positionTeam = positionTeamSplit[positionTeamSplit.length-1];
+			if (positionTeam) {
+				projection.position = getPosition(positionTeamSplit, positionTeamSplit.length-1);
+				// projection.team = 
+			}
 			var stats = $(playerRows[key]).find('td.playertableStat');
 			projection.completetions = $(stats['0']).text().split('/')[0];
 			projection.passingAttempts = $(stats['0']).text().split('/')[1];
@@ -91,13 +98,13 @@ function scrapeProjections(html) {
 			projection.receivingTDs = $(stats['9']).text();
 			projection.points = $(stats['10']).text();
 
-			projections.push(projection);
+			if (projection.position && projection.name !== '') {
+				projections.push(projection);
+			}
 
 			index++;
 
 		}
-
-		// console.log(stats);
 
 	}
 
@@ -109,5 +116,34 @@ function scrapeProjections(html) {
 		projections,
 		keepGoing
 	};
+
+}
+
+function getPosition(splitArray, i) {
+
+	if (i < 0) {
+		return '';
+	}
+
+	if (splitArray[i].indexOf('KC') >= 0) {
+		splitArray[i] = splitArray[i].split('KC')[1];
+	}
+
+	var returnPos;
+
+	POSITIONS.forEach((pos) => {
+
+		if (splitArray[i].indexOf(pos) >= 0) {
+			returnPos = pos
+		}
+
+	});
+
+	if (!returnPos) {
+		var index = i-1;
+		return getPosition(splitArray, index);
+	}
+
+	return returnPos;
 
 }

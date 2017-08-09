@@ -4,7 +4,8 @@
   "description": "\"Scripts for gathering fantasy football data\"",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "write-stats": "node write-stats.js",
+    "gather-projected-stats": "node gather-projected-stats.js",
     "test": "mocha --timeout 240000"
   },
   "repository": {
@@ -19,7 +20,9 @@
   "homepage": "https://github.com/mcappleman/fantasy-football-node#readme",
   "dependencies": {
     "cheerio": "latest",
+    "dotenv": "latest",
     "moment": "latest",
+    "mongoose": "latest",
     "request": "latest"
   },
   "devDependencies": {
