@@ -1,7 +1,12 @@
 # Fantasy Football Scripts
 Basic scripts to pull together previous season data from profootballreference and also scrape the projections from ESPN for 2017.
 
-## Commands
+# Dependencies
+* NodeJS 8.0 or higher
+* MongoDB
+
+## Steps
 * npm install
-* npm run compile-old-stats
-* npm run gather-future-stats
+* npm run populate-database
+* npm run gather-projected-stats
+* npm run write-stats
