@@ -6,7 +6,7 @@ Basic scripts to pull together previous season data from profootballreference an
 * MongoDB
 
 ## Steps
-* npm install
-* npm run populate-database
-* npm run gather-projected-stats
-* npm run write-stats
+ 1. npm install
+ 2. npm run populate-database
+ 3. npm run gather-projected-stats
+ 4. npm run write-stats
