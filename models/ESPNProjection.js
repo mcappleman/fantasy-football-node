@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 
 var schema = new mongoose.Schema({
 	'season': { 'type': Number },
-	'player': { 'type': mongoose.Schema.Types.ObjectId, 'required': true },
+	'player': { 'type': mongoose.Schema.Types.ObjectId, 'ref': 'Player', 'required': true },
 	'completions': { 'type': Number, 'default': 0 },
 	'passAttempts': { 'type': Number, 'default': 0 },
 	'passYards': { 'type': Number, 'default': 0 },

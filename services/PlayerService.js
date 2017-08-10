@@ -2,9 +2,20 @@
 
 var Player = require('../models/Player');
 
+const BASELINES = {
+	QB: process.env.BASELINE_QB || 12,
+	RB: process.env.BASELINE_RB || 24,
+	WR: process.env.BASELINE_WR || 24,
+	TE: process.env.BASELINE_TE || 12,
+	K: process.env.BASELINE_K || 12,
+	'D/ST': process.env.BASELINE_DEF || 12,
+}
+
 module.exports = {
 	findOne,
 	findOneOrCreate,
+	getBaseline,
+	getProjectedBaseline,
 	getPlayerId
 }
 
@@ -76,9 +87,6 @@ function findOneOrCreate(player) {
 
 function getPlayerId(name, number) {
 
-	// if (!name) {
-	// 	return;
-	// }
 	var firstName = name.split(' ')[0];
 	var lastName = name.split(' ')[1];
 	var newId = lastName.slice(0,4) + firstName.slice(0,2) + '0' + number;
@@ -94,5 +102,100 @@ function getPlayerId(name, number) {
 		return newId;
 
 	});
+
+}
+
+function getBaseline(position, year) {
+
+	return Player.aggregate([
+		{
+			$match: {
+				position: position
+			}
+		},
+		{
+			$lookup: {
+				from: 'seasons',
+				localField: '_id',
+				foreignField: 'player',
+				as: 'stats'
+			}
+		},
+		{
+			$addFields: {
+	            stats: {
+	                "$arrayElemAt": [
+	                    {
+	                        "$filter": {
+	                            "input": "$stats",
+	                            "as": "stat",
+	                            "cond": {
+	                                "$eq": [ "$$stat.season", year ]
+	                            }
+	                        }
+	                    }, 0
+	                ]
+	            }
+			}
+		},
+		{
+			$sort: { 'stats.points': -1 }
+		},
+		{
+			$skip: BASELINES[position]-1
+		},
+		{
+			$limit: 1
+		}
+	])
+	.then((results) => {
+		return results[0];
+	});
+
+}
+
+function getProjectedBaseline(position, year) {
+
+	return Player.aggregate([
+		{
+			$match: {
+				position: position
+			}
+		},
+		{
+			$lookup: {
+				from: 'espnprojections',
+				localField: '_id',
+				foreignField: 'player',
+				as: 'stats'
+			}
+		},
+		{
+			$addFields: {
+	            stats: {
+	                "$arrayElemAt": [
+	                    {
+	                        "$filter": {
+	                            "input": "$stats",
+	                            "as": "stat",
+	                            "cond": {
+	                                "$eq": [ "$$stat.season", year ]
+	                            }
+	                        }
+	                    }, 0
+	                ]
+	            }
+			}
+		},
+		{
+			$sort: { 'stats.points': -1 }
+		},
+		{
+			$skip: BASELINES[position]-1
+		},
+		{
+			$limit: 1
+		}
+	]);
 
 }

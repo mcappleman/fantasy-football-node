@@ -69,10 +69,21 @@ function writeHeader(year) {
 		
 	});
 
-	// for(var player in playerData) {
-	// 	var writableLine = getCSVLine(playerData[player]) + '\n';
-	// 	fs.appendFileSync('AllPlayers.csv', writableLine, 'utf8');
-	// }
+}
+
+function writeLine(line, year) {
+
+	return new Promise((resolve, reject) => {
+
+		fs.appendFile(`./csv/AllPlayers${year}.csv`, line, 'utf8', (err) => {
+
+			if (err) { return reject(err); }
+
+			return resolve();
+
+		});
+
+	})
 
 }
 
@@ -93,7 +104,12 @@ function writePlayers(year) {
 					return resolve();
 				}
 
-				writeLine(projections[index])
+				getLine(projections[index], index)
+				.then((line) => {
+
+					return writeLine(line, year);
+
+				})
 				.then(() => {
 					index++;
 					iter();
@@ -111,7 +127,7 @@ function writePlayers(year) {
 
 }
 
-function writeLine(projection) {
+function getLine(projection, index) {
 
 	var player;
 
@@ -124,9 +140,9 @@ function writeLine(projection) {
 	})
 	.then((seasons) => {
 
-		
-		
-	})
+		return `\n,${index+1},${player.name},${player.position},${0},${0},${0},${0},${projection.points},${projection.VBD},${seasons[2016] ? seasons[2016].points : 0},${seasons[2016] ? seasons[2016].VBD : 0},${seasons[2015] ? seasons[2015].points : 0},${seasons[2015] ? seasons[2015].VBD : 0},${seasons[2014] ? seasons[2014].points : 0},${seasons[2014] ? seasons[2014].VBD : 0}`;
+
+	});
 
 }
 

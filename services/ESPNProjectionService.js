@@ -78,15 +78,70 @@ function getProjections(year) {
 
 	return ESPNProjection.find({ season: year })
 	.sort({ points: -1 })
+	.populate('player')
 	.then((projections) => {
 
 		returnProjections = projections;
-		return getVBDPlayers(year);
+		return getBaselinePlayers(year);
 
 	})
+	.then((baselines) => {
+
+		returnProjections.forEach((player) => {
+
+			player.VBD = player.points - baselines[player.player.position].stats.points;
+
+		});
+
+		return returnProjections;
+
+	});
 
 }
 
-function getVBDPlayers(year) {
+function getBaselinePlayers(year) {
+
+	var baselinePlayers = {};
+	var sort = {
+		points: -1
+	}
+
+	return PlayerService.getProjectedBaseline('QB', year)
+	.then((players) => {
+
+		baselinePlayers.QB = players[0];
+		return PlayerService.getProjectedBaseline('RB', year);
+
+	})
+	.then((players) => {
+
+		baselinePlayers.RB = players[0];
+		return PlayerService.getProjectedBaseline('WR', year);
+
+	})
+	.then((players) => {
+
+		baselinePlayers.WR = players[0];
+		return PlayerService.getProjectedBaseline('TE', year);
+
+	})
+	.then((players) => {
+
+		baselinePlayers.TE = players[0];
+		return PlayerService.getProjectedBaseline('K', year);
+
+	})
+	.then((players) => {
+
+		baselinePlayers.K = players[0];
+		return PlayerService.getProjectedBaseline('D/ST', year);
+
+	})
+	.then((players) => {
+
+		baselinePlayers['D/ST'] = players[0];
+		return baselinePlayers
+
+	});
 	
 }
