@@ -22,6 +22,24 @@ describe('PlayerService', () => {
 		})
 		.then(() => {
 
+			return Player.create({
+				pfrId: 'PryoTe00',
+				name: 'Terrelle Pryor',
+				position: 'WR'
+			});
+
+		})
+		.then(() => {
+
+			return Player.create({
+				pfrId: 'VinaAd00',
+				name: 'Adam Vinaterri',
+				position: 'K'
+			});
+
+		})
+		.then(() => {
+
 			return;
 
 		}).then(done,done);
@@ -136,6 +154,38 @@ describe('PlayerService', () => {
 			expect(result.pfrId).to.equal('ElliEz00');
 			expect(result.name).to.equal('Ezekiel Elliott');
 			expect(result.position).to.equal('RB');
+
+		}).then(done,done);
+
+	});
+
+	it('should find a player based on its name and position with a name ending', (done) => {
+
+		PlayerService.findOneOrCreate({
+			name: 'Terrelle Pryor Sr.',
+			position: 'WR'
+		})
+		.then((result) => {
+
+			expect(result.pfrId).to.equal('PryoTe00');
+			expect(result.name).to.equal('Terrelle Pryor');
+			expect(result.position).to.equal('WR');
+
+		}).then(done,done);
+
+	});
+
+	it('should find a player named Adam Vinaterri', (done) => {
+
+		PlayerService.findOneOrCreate({
+			name: 'Adam Vinaterri',
+			position: 'K'
+		})
+		.then((result) => {
+
+			expect(result.pfrId).to.equal('VinaAd00');
+			expect(result.name).to.equal('Adam Vinaterri');
+			expect(result.position).to.equal('K');
 
 		}).then(done,done);
 

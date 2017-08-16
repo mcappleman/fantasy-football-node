@@ -10,6 +10,7 @@ const BASELINES = {
 	K: process.env.BASELINE_K || 12,
 	'D/ST': process.env.BASELINE_DEF || 12,
 }
+const NAME_ENDINGS = ['Jr.', 'Sr.', 'III', 'V'];
 
 module.exports = {
 	findOne,
@@ -52,7 +53,9 @@ function findOneOrCreate(player) {
 
 	}
 
-	return Player.find({ name: player.name, position: player.position })
+	var searchAbleName = getSearchAbleName(player.name);
+
+	return Player.find({ name: searchAbleName, position: player.position })
 	.then((results) => {
 
 		if (results.length === 0) {
@@ -197,5 +200,17 @@ function getProjectedBaseline(position, year) {
 			$limit: 1
 		}
 	]);
+
+}
+
+function getSearchAbleName(name) {
+
+	var split = name.split(' ');
+
+	if (split.length === 2) {
+		return name;
+	}
+
+	return name;
 
 }
