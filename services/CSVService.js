@@ -7,6 +7,9 @@ var PlayerService = require('./PlayerService');
 var SeasonService = require('./SeasonService');
 var ESPNProjectionService = require('./ESPNProjectionService');
 
+const PROJ_AVERAGE = [.4, .4, .15, .05];
+const PREV_AVERAGE = [0, .6, .3, .1];
+
 module.exports = {
 	readFile,
 	writeHeader,
@@ -55,7 +58,7 @@ function readFile(path, season) {
 
 function writeHeader(year) {
 
-	var headerLine = `,,,,Projected,Projected,Previous,Previous,${year},${year},${year-1},${year-1},${year-2},${year-2},${year-3},${year-3}\nTaken,Rank,Name,Position,Average,VBDAverage,Average,VBDAverage,Points,VBD,Points,VBD,Points,VBD,Points,VBD`;
+	var headerLine = `,,,,Projected,Projected,Previous,Previous,${year},,${year-1},,${year-2},,${year-3},\nTaken,Rank,Name,Position,Average,VBDAverage,Average,VBDAverage,Points,VBD,Points,VBD,Points,VBD,Points,VBD`;
 	
 	return new Promise((resolve, reject) => {
 
@@ -140,7 +143,49 @@ function getLine(projection, index) {
 	})
 	.then((seasons) => {
 
-		return `\n,${index+1},${player.name},${player.position},${0},${0},${0},${0},${projection.points},${projection.VBD},${seasons[2016] ? seasons[2016].points : 0},${seasons[2016] ? seasons[2016].VBD : 0},${seasons[2015] ? seasons[2015].points : 0},${seasons[2015] ? seasons[2015].VBD : 0},${seasons[2014] ? seasons[2014].points : 0},${seasons[2014] ? seasons[2014].VBD : 0}`;
+		var year = 2017;
+		var projectedVBDAverage = 0;
+		var projectedPointsAverage = 0;
+		var prevPointsAverage = 0;
+		var prevVBDAveage = 0;
+
+		for (var i = 0; i < 4; i++) {
+
+			if ((year - i) === 2017) {
+
+				projectedVBDAverage += projection.VBD * PROJ_AVERAGE[i];
+				projectedPointsAverage += projection.points * PROJ_AVERAGE[i];
+
+			} else if (!seasons[year - i]) {
+
+				seasons[year - i] = {
+					points: '',
+					VBD: ''
+				}
+
+			} else {
+
+				var season = seasons[year - i];
+
+				if (!season.points) {
+
+					season.points = '';
+					season.VBD = '';
+
+				} else {
+
+					projectedVBDAverage += season.VBD * PROJ_AVERAGE[i];
+					projectedPointsAverage += season.points * PROJ_AVERAGE[i];
+					prevVBDAveage += season.VBD * PREV_AVERAGE[i];
+					prevPointsAverage += season.points * PREV_AVERAGE[i];
+
+				}
+
+			}
+
+		}
+
+		return `\n,${index+1},${player.name},${player.position},${projectedPointsAverage},${projectedVBDAverage},${prevPointsAverage},${prevVBDAveage},${projection.points},${projection.VBD},${seasons[2016].points},${seasons[2016].VBD},${seasons[2015].points},${seasons[2015].VBD},${seasons[2014].points},${seasons[2014].VBD}`;
 
 	});
 
