@@ -1,77 +1,77 @@
-'use strict';
+// 'use strict';
 
-process.env.NODE_ENV = 'test';
+// process.env.NODE_ENV = 'test';
 
-var chai 		= require('chai');
-var chaiHttp 	= require('chai-http');
-var expect 		= chai.expect;
+// var chai 		= require('chai');
+// var chaiHttp 	= require('chai-http');
+// var expect 		= chai.expect;
 
-var ScrapeService = require('../services/ScrapeService');
-var RequestService = require('../services/RequestService');
+// var ScrapeService = require('../services/ScrapeService');
+// var RequestService = require('../services/RequestService');
 
-describe('ScrapeService', () => {
+// describe('ScrapeService', () => {
 
-	it('should get all the projections from espn', (done) => {
+// 	it('should get all the projections from espn', (done) => {
 
-		ScrapeService.getAllProjections()
-		.then((projections) => {
+// 		ScrapeService.getAllProjections()
+// 		.then((projections) => {
 
-			expect(projections).to.be.an('array');
-			expect(projections.length).to.be.above(1000);
+// 			expect(projections).to.be.an('array');
+// 			expect(projections.length).to.be.above(1000);
 
-		})
-		.then(done, done);
+// 		})
+// 		.then(done, done);
 
-	});
+// 	});
 
-	it('should get the projections for one page and return keep going being true', (done) => {
+// 	it('should get the projections for one page and return keep going being true', (done) => {
 
-		var reqOpts = {
-			method: 'GET',
-			url: `http://games.espn.com/ffl/tools/projections?leagueId=282421&startIndex=0`,
-			json: true
-		}
+// 		var reqOpts = {
+// 			method: 'GET',
+// 			url: `http://games.espn.com/ffl/tools/projections?leagueId=282421&startIndex=0`,
+// 			json: true
+// 		}
 
-		RequestService.promisify(reqOpts)
-		.then((body) => {
+// 		RequestService.promisify(reqOpts)
+// 		.then((body) => {
 
-			return ScrapeService.scrapeProjections(body);
+// 			return ScrapeService.scrapeProjections(body);
 
-		})
-		.then((result) => {
+// 		})
+// 		.then((result) => {
 
-			expect(result.projections).to.be.an('array');
-			expect(result.projections.length).to.equal(40);
-			expect(result.keepGoing).to.be.true;
+// 			expect(result.projections).to.be.an('array');
+// 			expect(result.projections.length).to.equal(40);
+// 			expect(result.keepGoing).to.be.true;
 
-		})
-		.then(done, done);
+// 		})
+// 		.then(done, done);
 
-	});
+// 	});
 
-	it('should get the projections for one page and return keep going being false', (done) => {
+// 	it('should get the projections for one page and return keep going being false', (done) => {
 
-		var reqOpts = {
-			method: 'GET',
-			url: `http://games.espn.com/ffl/tools/projections?leagueId=282421&startIndex=1200`,
-			json: true
-		}
+// 		var reqOpts = {
+// 			method: 'GET',
+// 			url: `http://games.espn.com/ffl/tools/projections?leagueId=282421&startIndex=1200`,
+// 			json: true
+// 		}
 
-		RequestService.promisify(reqOpts)
-		.then((body) => {
+// 		RequestService.promisify(reqOpts)
+// 		.then((body) => {
 
-			return ScrapeService.scrapeProjections(body);
+// 			return ScrapeService.scrapeProjections(body);
 
-		})
-		.then((result) => {
+// 		})
+// 		.then((result) => {
 
-			expect(result.projections).to.be.an('array');
-			expect(result.projections.length).to.not.equal(40);
-			expect(result.keepGoing).to.be.false;
+// 			expect(result.projections).to.be.an('array');
+// 			expect(result.projections.length).to.not.equal(40);
+// 			expect(result.keepGoing).to.be.false;
 
-		})
-		.then(done, done);
+// 		})
+// 		.then(done, done);
 
-	});
+// 	});
 
-});
+// });

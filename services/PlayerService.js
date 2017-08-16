@@ -211,6 +211,27 @@ function getSearchAbleName(name) {
 		return name;
 	}
 
-	return name;
+	var endingIndex = 0;
+	var returnValue = split[0];
+
+	for (var i = split.length-1; i > 1; i--) {
+
+		NAME_ENDINGS.forEach((ending) => {
+
+			if (split[i].indexOf(ending) > -1) {
+				endingIndex = i;
+			}
+
+		});
+
+	}
+
+	for (var i = 1; i < endingIndex; i++) {
+
+		returnValue += ' ' + split[i];
+
+	}
+
+	return returnValue;
 
 }
