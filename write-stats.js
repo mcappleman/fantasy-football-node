@@ -7,7 +7,7 @@ require('./config/mongoose.config');
 
 var CSVService = require('./services/CSVService');
 
-const YEAR = 2017
+const YEAR = new Date().getFullYear();
 
 CSVService.writeHeader(YEAR)
 .then(() => {

@@ -1,7 +1,7 @@
 'use strict';
 
 const ROOT_DIR = process.env.ROOT_DIR = __dirname;
-const SEASON = 2017;
+const SEASON = new Date().getFullYear();
 
 require('dotenv').config({ path: `${ROOT_DIR}/.env` });
 require('./config/mongoose.config');

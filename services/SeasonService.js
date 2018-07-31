@@ -55,32 +55,36 @@ function findOneOrCreate(player, lineObj, season) {
 function getPreviousSeasons(playerId) {
 
 	var seasons = {};
+	var year = new Date().getFullYear()-1;
 
-	return getSeason(playerId, 2016)
+	return getSeason(playerId, year)
 	.then((season) => {
 
-		seasons[2016] = season;
-		return getSeason(playerId, 2015);
+		seasons[year] = season;
+		year--;
+		return getSeason(playerId, year);
 
 	})
 	.then((season) => {
 
-		seasons[2015] = season;
-		return getSeason(playerId, 2014);
+		seasons[year] = season;
+		year--;
+		return getSeason(playerId, year);
 		
 	})
 	.then((season) => {
 
-		seasons[2014] = season;
-		return getSeason(playerId, 2013);
+		seasons[year] = season;
+		year--;
+		return getSeason(playerId, year);
 		
 	})
 	.then((season) => {
 
-		seasons[2013] = season;
+		seasons[year] = season;
 		return seasons;
 		
-	})
+	});
 
 }
 

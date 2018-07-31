@@ -10,7 +10,7 @@ const BASELINES = {
 	K: process.env.BASELINE_K || 12,
 	'D/ST': process.env.BASELINE_DEF || 12,
 }
-const NAME_ENDINGS = ['Jr.', 'Sr.', 'III', 'V'];
+const NAME_ENDINGS = ['Jr.', 'Sr.', 'III', 'V', 'II'];
 
 module.exports = {
 	findOne,

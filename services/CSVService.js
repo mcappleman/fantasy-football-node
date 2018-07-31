@@ -120,11 +120,11 @@ function writePlayers(year) {
 				.catch((err) => {
 					console.log(`ERROR WRITING THE PROJECTIONS`);
 					return reject(err);
-				})
+				});
 
 			}
 
-		})
+		});
 
 	});
 
@@ -143,7 +143,8 @@ function getLine(projection, index) {
 	})
 	.then((seasons) => {
 
-		var year = 2017;
+		var year = new Date().getFullYear();
+		var thisYear = new Date().getFullYear();
 		var projectedVBDAverage = 0;
 		var projectedPointsAverage = 0;
 		var prevPointsAverage = 0;
@@ -151,7 +152,7 @@ function getLine(projection, index) {
 
 		for (var i = 0; i < 4; i++) {
 
-			if ((year - i) === 2017) {
+			if ((year - i) === thisYear) {
 
 				projectedVBDAverage += projection.VBD * PROJ_AVERAGE[i];
 				projectedPointsAverage += projection.points * PROJ_AVERAGE[i];
@@ -185,8 +186,12 @@ function getLine(projection, index) {
 
 		}
 
-		return `\n,${index+1},${player.name},${player.position},${projectedPointsAverage},${projectedVBDAverage},${prevPointsAverage},${prevVBDAveage},${projection.points},${projection.VBD},${seasons[2016].points},${seasons[2016].VBD},${seasons[2015].points},${seasons[2015].VBD},${seasons[2014].points},${seasons[2014].VBD}`;
-
+		try {
+			return `\n,${index+1},${player.name},${player.position},${projectedPointsAverage},${projectedVBDAverage},${prevPointsAverage},${prevVBDAveage},${projection.points},${projection.VBD},${seasons[thisYear-1].points},${seasons[thisYear-1].VBD},${seasons[thisYear-2].points},${seasons[thisYear-2].VBD},${seasons[thisYear-3].points},${seasons[thisYear-3].VBD}`;
+		} catch(e) {
+			console.log(`Error with player ${player}\nSeasons: ${seasons}\nProjections: ${projection}`);
+			return '';
+		}
 	});
 
 }
