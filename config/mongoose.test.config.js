@@ -1,7 +1,11 @@
 'use strict';
 
+const ROOT_DIR = process.env.ROOT_DIR = `${__dirname}/..`;
+console.log(ROOT_DIR)
+require('dotenv').config({ path: `${ROOT_DIR}/.env` });
+
 const DB_NAME = 'fantasy_football_test';
-const MONGO_HOST = process.env.MONGO_HOST || `mongodb://localhost/${DB_NAME}`;
+const MONGO_HOST = process.env.MONGO_HOST_TEST || `mongodb://localhost/${DB_NAME}`;
 
 var mongoose = require('mongoose');
 mongoose.Promise = Promise;

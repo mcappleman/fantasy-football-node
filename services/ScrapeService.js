@@ -5,7 +5,7 @@ var cheerio = require('cheerio');
 var RequestService = require('./RequestService');
 
 const ROWS_PER_PAGE = 40;
-const BASE_URL = 'http://games.espn.com/ffl/tools/projections?leagueId=282421&startIndex=';
+const BASE_URL = 'http://games.espn.com/ffl/tools/projections?leagueId=333403&startIndex=';
 const POSITIONS = ['QB', 'RB', 'WR', 'TE', 'K', 'D/ST'];
 
 var skip = 0;
